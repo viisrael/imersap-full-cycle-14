@@ -1,0 +1,36 @@
+GET http://localhost:3000
+
+
+###
+GET http://localhost:3000/routes
+
+
+
+###
+GET http://localhost:3000/routes/670ebc985d239e5a7fa2e386
+
+###
+POST http://localhost:3000/routes
+Content-Type: application/json
+
+{
+  "name": "route test 2",
+  "source_id": "ChIJOaxQ6PsGugcRfN1MkqnvEhs",
+  "destination_id": "ChIJ_0rboG0HugcR4SC75SUWUi0"
+}
+
+
+### Coisas do mapa
+
+### Pegar o place_id
+GET http://localhost:3000/places?text=avenida cunha da mota, mossoro, 536
+
+### Pegar o place_id
+GET http://localhost:3000/places?text=avenida francisco mota, mossoro, 572
+
+
+### Pegar direções entre dois pontos
+GET http://localhost:3000/directions?originId=ChIJOaxQ6PsGugcRfN1MkqnvEhs&destinationId=ChIJ_0rboG0HugcR4SC75SUWUi0
+
+
+### 
