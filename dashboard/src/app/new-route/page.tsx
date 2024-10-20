@@ -1,9 +1,32 @@
 'use client';
 
 import type { FindPlaceFromTextResponseData } from "@googlemaps/google-maps-services-js";
-import { FormEvent } from "react";
+import { Loader } from "@googlemaps/js-api-loader";
+import { FormEvent, useEffect } from "react";
 
 export function NewRoutePage() {
+
+  useEffect(() =>{
+    (async () => {
+      const loader = new Loader({
+        apiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string,
+        libraries: ['routes', 'geometry']
+      });
+  
+      
+      await Promise.all([
+        loader.importLibrary('routes'),
+        loader.importLibrary('geometry')
+      ]);
+  
+      new google.maps.Map(document.getElementById("map") as any, {
+        zoom: 15,
+        center: { lat: -5.1952044, lng:-37.350665 }
+      });
+    })();
+    
+  }, []);
+
 
   async function searchPlaces(event: FormEvent) {
     event.preventDefault();
@@ -48,20 +71,26 @@ export function NewRoutePage() {
 
 
   return (
-    <div>
-      <h1>
-        Nova Rota
-      </h1>
-      <form style={{display: 'flex', flexDirection: 'column'}} onSubmit={searchPlaces}>
-        <div>
-          <input id="source" type="text" placeholder="origem" />
-        </div>
-        <div>
-          <input id="destination" type="text" placeholder="destino" />
-        </div>
+    <div style={{display:"flex", flexDirection:"row", height: "100%", width: "100%"}}>
+      <div>
+        <h1>
+          Nova Rota
+        </h1>
+        <form style={{display: 'flex', flexDirection: 'column'}} onSubmit={searchPlaces}>
+          <div>
+            <input id="source" type="text" placeholder="origem" />
+          </div>
+          <div>
+            <input id="destination" type="text" placeholder="destino" />
+          </div>
 
-        <button type="submit">Pesquisar</button>
-      </form>
+          <button type="submit">Pesquisar</button>
+        </form>
+      </div>
+
+      <div id="map" style={{height: "100%", width: "100%"}}>
+
+      </div>
     </div>
   );
 }
