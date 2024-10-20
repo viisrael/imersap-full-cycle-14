@@ -30,6 +30,7 @@
 			"extensions": [
 				"prisma.prisma",
 				"humao.rest-client",
+				"dbaeumer.vscode-eslint",
 			]
 		}
 	}
