@@ -1,31 +1,12 @@
 'use client';
 
 import type { FindPlaceFromTextResponseData } from "@googlemaps/google-maps-services-js";
-import { Loader } from "@googlemaps/js-api-loader";
-import { FormEvent, useEffect } from "react";
+import { FormEvent, useRef } from "react";
+import { useMap } from "./hooks/useMap";
 
 export function NewRoutePage() {
-
-  useEffect(() =>{
-    (async () => {
-      const loader = new Loader({
-        apiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string,
-        libraries: ['routes', 'geometry']
-      });
-  
-      
-      await Promise.all([
-        loader.importLibrary('routes'),
-        loader.importLibrary('geometry')
-      ]);
-  
-      new google.maps.Map(document.getElementById("map") as any, {
-        zoom: 15,
-        center: { lat: -5.1952044, lng:-37.350665 }
-      });
-    })();
-    
-  }, []);
+  const mapContainerRef = useRef<HTMLDivElement>(null);
+  const map = useMap(mapContainerRef);
 
 
   async function searchPlaces(event: FormEvent) {
@@ -88,7 +69,9 @@ export function NewRoutePage() {
         </form>
       </div>
 
-      <div id="map" style={{height: "100%", width: "100%"}}>
+      <div id="map" 
+          style={{height: "100%", width: "100%"}}
+          ref={mapContainerRef} >
 
       </div>
     </div>
