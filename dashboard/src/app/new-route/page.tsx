@@ -1,12 +1,13 @@
 'use client';
 
-import type { FindPlaceFromTextResponseData } from "@googlemaps/google-maps-services-js";
-import { FormEvent, useRef } from "react";
+import type { DirectionsResponseData, FindPlaceFromTextResponseData } from "@googlemaps/google-maps-services-js";
+import { FormEvent, useRef, useState } from "react";
 import { useMap } from "./hooks/useMap";
 
 export function NewRoutePage() {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const map = useMap(mapContainerRef);
+  const [directionsData, setDirectionsData] = useState<DirectionsResponseData & { request: any }>();
 
 
   async function searchPlaces(event: FormEvent) {
@@ -45,11 +46,42 @@ export function NewRoutePage() {
 
     const directionsResponse = await fetch(`http://localhost:3000/directions?originId=${placesSourceId}&destinationId=${placesDestinationId}`);
 
-    const directionData = await directionsResponse.json();
+    const directionsData: DirectionsResponseData & { request: any } = await directionsResponse.json();
 
-    console.log(directionData);
+    setDirectionsData(directionsData);
+    map?.removeAllRoutes();
+
+    await map?.addRouteWithIcons({
+      routeId: '1',
+      startMarkerOptions: {
+        position: directionsData.routes[0].legs[0].start_location,
+      },
+      endMarkerOptions: {
+        position: directionsData.routes[0].legs[0].end_location,
+      },
+      carMarkerOptions: {
+        position: directionsData.routes[0].legs[0].start_location,
+      },
+    });
   }
 
+  async function createRoute(){
+
+    const startAddres = directionsData!.routes[0].legs[0].start_address;
+    const endAddres = directionsData!.routes[0].legs[0].end_address;
+
+    fetch('http://localhost:3000/routes',{
+      method: 'POST',
+      headers: {
+        'Contente-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        name: `${startAddres} - ${endAddres}`,
+        source_id: directionsData!.request.origin.place_id,
+        destination_id: directionsData!.request.destination.place_id
+      })
+    });
+  }
 
   return (
     <div style={{display:"flex", flexDirection:"row", height: "100%", width: "100%"}}>
@@ -67,6 +99,15 @@ export function NewRoutePage() {
 
           <button type="submit">Pesquisar</button>
         </form>
+        { directionsData && (
+          <ul>
+            <li>Origem {directionsData.routes[0].legs[0].start_address}</li>
+            <li>Destino {directionsData.routes[0].legs[0].end_address}</li>
+            <li>
+              <button onClick={createRoute}>Criar Rota</button>
+            </li>
+          </ul>
+        ) }
       </div>
 
       <div id="map" 
