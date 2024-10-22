@@ -2,7 +2,7 @@
 
 import type { DirectionsResponseData, FindPlaceFromTextResponseData } from "@googlemaps/google-maps-services-js";
 import { FormEvent, useRef, useState } from "react";
-import { useMap } from "./hooks/useMap";
+import { useMap } from "../hooks/useMap";
 
 export function NewRoutePage() {
   const mapContainerRef = useRef<HTMLDivElement>(null);
@@ -70,10 +70,10 @@ export function NewRoutePage() {
     const startAddres = directionsData!.routes[0].legs[0].start_address;
     const endAddres = directionsData!.routes[0].legs[0].end_address;
 
-    fetch('http://localhost:3000/routes',{
+    const response = await fetch('http://localhost:3000/routes',{
       method: 'POST',
       headers: {
-        'Contente-Type': 'application/json',
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         name: `${startAddres} - ${endAddres}`,
@@ -81,6 +81,8 @@ export function NewRoutePage() {
         destination_id: directionsData!.request.destination.place_id
       })
     });
+
+    const route = await response.json();
   }
 
   return (
