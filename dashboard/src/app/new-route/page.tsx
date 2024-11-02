@@ -3,12 +3,14 @@
 import type { DirectionsResponseData, FindPlaceFromTextResponseData } from "@googlemaps/google-maps-services-js";
 import { FormEvent, useRef, useState } from "react";
 import { useMap } from "../hooks/useMap";
+import {Alert, Button, Card, CardActions, CardContent, Grid2, List, ListItem, ListItemText, Snackbar, TextField, Typography}  from "@mui/material";
+
 
 export function NewRoutePage() {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const map = useMap(mapContainerRef);
   const [directionsData, setDirectionsData] = useState<DirectionsResponseData & { request: any }>();
-
+  const [open, setOpen] = useState(false);
 
   async function searchPlaces(event: FormEvent) {
     event.preventDefault();
@@ -83,41 +85,86 @@ export function NewRoutePage() {
     });
 
     const route = await response.json();
+
+    setOpen(true);
   }
 
   return (
-    <div style={{display:"flex", flexDirection:"row", height: "100%", width: "100%"}}>
-      <div>
-        <h1>
+    <Grid2 container sx={{display: "flex", flex: 1}}>
+      <Grid2 size={{xs:4}} px={2}>
+        <Typography variant="h4">
           Nova Rota
-        </h1>
-        <form style={{display: 'flex', flexDirection: 'column'}} onSubmit={searchPlaces}>
-          <div>
-            <input id="source" type="text" placeholder="origem" />
-          </div>
-          <div>
-            <input id="destination" type="text" placeholder="destino" />
-          </div>
+        </Typography>
+        <form onSubmit={searchPlaces}>
+          <TextField id="source" label="Origem" fullWidth sx={{mt:1}}/>
+          <TextField id="destination" label="Destino" fullWidth sx={{mt:1}}/>
 
-          <button type="submit">Pesquisar</button>
+          <Button variant="contained" type="submit" fullWidth sx={{mt:1}}>Pesquisar</Button>
         </form>
         { directionsData && (
-          <ul>
-            <li>Origem {directionsData.routes[0].legs[0].start_address}</li>
-            <li>Destino {directionsData.routes[0].legs[0].end_address}</li>
-            <li>
-              <button onClick={createRoute}>Criar Rota</button>
-            </li>
-          </ul>
+          <Card sx={{ mt: 1 }}>
+          <CardContent>
+            <List>
+              <ListItem>
+                <ListItemText
+                  primary={"Origem"}
+                  secondary={
+                    directionsData?.routes[0]!.legs[0]!.start_address
+                  }
+                />
+              </ListItem>
+              <ListItem>
+                <ListItemText
+                  primary={"Destino"}
+                  secondary={
+                    directionsData?.routes[0]!.legs[0]!.end_address
+                  }
+                />
+              </ListItem>
+              <ListItem>
+                <ListItemText
+                  primary={"Distância"}
+                  secondary={
+                    directionsData?.routes[0]!.legs[0]!.distance.text
+                  }
+                />
+              </ListItem>
+              <ListItem>
+                <ListItemText
+                  primary={"Duração"}
+                  secondary={
+                    directionsData?.routes[0]!.legs[0]!.duration.text
+                  }
+                />
+              </ListItem>
+            </List>
+          </CardContent>
+          <CardActions sx={{ display: "flex", justifyContent: "center" }}>
+            <Button type="button" variant="contained" onClick={createRoute}>
+              Adicionar rota
+            </Button>
+          </CardActions>
+        </Card>
         ) }
-      </div>
+      </Grid2>
 
-      <div id="map" 
-          style={{height: "100%", width: "100%"}}
+      <Grid2 id="map" 
+          size={{ xs:8 }}
           ref={mapContainerRef} >
 
-      </div>
-    </div>
+      </Grid2>
+
+      <Snackbar
+        open={open}
+        autoHideDuration={3000}
+        onClose={() => setOpen(false)}
+      >
+        <Alert onClose={() => setOpen(false)} severity="success">
+          Rota Cadastrada com Sucesso!
+        </Alert>
+
+      </Snackbar>
+    </Grid2>
   );
 }
 

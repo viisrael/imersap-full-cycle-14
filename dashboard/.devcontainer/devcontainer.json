@@ -32,6 +32,7 @@
 				"humao.rest-client",
 				"dbaeumer.vscode-eslint",
 				"ms-azuretools.vscode-docker",
+				"zenclabs.previewjs",
 			]
 		}
 	}
