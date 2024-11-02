@@ -5,8 +5,10 @@ import {
 } from '@googlemaps/google-maps-services-js/dist/directions';
 import { InjectQueue } from '@nestjs/bull';
 import { Injectable } from '@nestjs/common';
+import { InjectMetric } from '@willsoto/nestjs-prometheus';
 import { Queue } from 'bull';
 import { eventNames } from 'process';
+import { Counter } from 'prom-client';
 import { PrismaService } from 'src/prisma/prisma/prisma.service';
 import { finished } from 'stream';
 
@@ -15,6 +17,9 @@ export class RoutesDriverService {
   constructor(
     private readonly prismaService: PrismaService,
     @InjectQueue('kafka-producer') private kafkaProducerQueue: Queue,
+    @InjectMetric('route_started_counter') private routeStartedCounter: Counter,
+    @InjectMetric('route_finished_counter')
+    private routeFinishedCounter: Counter,
   ) {}
 
   async createOrUpdate(dto: { route_id: string; lat: number; lng: number }) {
@@ -55,6 +60,7 @@ export class RoutesDriverService {
     });
 
     if (countDriver === 0) {
+      this.routeStartedCounter.inc();
       await this.kafkaProducerQueue.add({
         event: 'RouteStarter',
         name: routeDriver.route.name,
@@ -78,6 +84,7 @@ export class RoutesDriverService {
       lastPoint.end_location.lat === dto.lat &&
       lastPoint.end_location.lng === dto.lng
     ) {
+      this.routeFinishedCounter.inc();
       await this.kafkaProducerQueue.add({
         event: 'RouteFinished',
         name: routeDriver.route.name,
