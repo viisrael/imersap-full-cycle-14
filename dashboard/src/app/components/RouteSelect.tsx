@@ -14,7 +14,7 @@ export function RouteSelect(props: RouteSelectProps) {
     error,
     isLoading,
   } = useSWR<Route[]>(
-    `http://localhost:3000/routes`,
+    `http://localhost:3001/api/routes`,
     fetcher,
     {
       fallbackData: [],

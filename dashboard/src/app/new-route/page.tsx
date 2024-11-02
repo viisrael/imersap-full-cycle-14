@@ -19,8 +19,8 @@ export function NewRoutePage() {
     const destination = (document.getElementById("destination") as HTMLInputElement).value;
 
     const [sourceResponse, destinationResponse] = await Promise.all([
-                                                    fetch(`http://localhost:3000/places?text=${source}`),
-                                                    fetch(`http://localhost:3000/places?text=${destination}`),
+                                                    fetch(`http://localhost:3001/api/places?text=${source}`),
+                                                    fetch(`http://localhost:3001/api/places?text=${destination}`),
                                                   ]);
 
     const [sourcePlace, destinationPlace]: FindPlaceFromTextResponseData[] = await Promise.all([
@@ -46,7 +46,7 @@ export function NewRoutePage() {
     const placesSourceId = sourcePlace.candidates[0].place_id;
     const placesDestinationId = destinationPlace.candidates[0].place_id;
 
-    const directionsResponse = await fetch(`http://localhost:3000/directions?originId=${placesSourceId}&destinationId=${placesDestinationId}`);
+    const directionsResponse = await fetch(`http://localhost:3001/api/directions?originId=${placesSourceId}&destinationId=${placesDestinationId}`);
 
     const directionsData: DirectionsResponseData & { request: any } = await directionsResponse.json();
 
@@ -72,7 +72,7 @@ export function NewRoutePage() {
     const startAddres = directionsData!.routes[0].legs[0].start_address;
     const endAddres = directionsData!.routes[0].legs[0].end_address;
 
-    const response = await fetch('http://localhost:3000/routes',{
+    const response = await fetch('http://localhost:3001/api/routes',{
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
